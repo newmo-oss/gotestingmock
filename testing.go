@@ -32,7 +32,7 @@ type TB struct {
 	SkippedFunc func() bool
 	TempDirFunc func() string
 
-	testing.TB // for private method and unsupport method
+	testing.TB // for default behavior andd private method
 }
 
 // Record records the result of [Run].
@@ -72,131 +72,198 @@ func Run(f func(*TB)) *Record {
 }
 
 func (tb *TB) Cleanup(f func()) {
-	if tb.CleanupFunc != nil {
+	switch {
+	case tb.CleanupFunc != nil:
 		tb.CleanupFunc(f)
+	case tb.TB != nil:
+		tb.TB.Cleanup(f)
 	}
 }
 
 func (tb *TB) Error(args ...any) {
 	tb.record.Failed = true
-	if tb.ErrorFunc != nil {
+	switch {
+	case tb.ErrorFunc != nil:
 		tb.ErrorFunc(args...)
+	case tb.TB != nil:
+		tb.TB.Error(args...)
 	}
 }
 
 func (tb *TB) Errorf(format string, args ...any) {
 	tb.record.Failed = true
-	if tb.ErrorfFunc != nil {
+	switch {
+	case tb.ErrorfFunc != nil:
 		tb.ErrorfFunc(format, args...)
+	case tb.TB != nil:
+		tb.TB.Errorf(format, args...)
 	}
 }
 
 func (tb *TB) Fail() {
 	tb.record.Failed = true
-	if tb.FailFunc != nil {
+	switch {
+	case tb.FailFunc != nil:
 		tb.FailFunc()
+	case tb.TB != nil:
+		tb.TB.Fail()
 	}
 }
 
 func (tb *TB) FailNow() {
 	tb.record.Failed = true
 	tb.record.Goexit = true
-	if tb.FailNowFunc != nil {
+
+	switch {
+	case tb.FailNowFunc != nil:
 		tb.FailNowFunc()
-	} else {
+		runtime.Goexit()
+	case tb.TB != nil:
+		tb.TB.FailNow()
+	default:
 		runtime.Goexit()
 	}
 }
 
 func (tb *TB) Failed() bool {
-	if tb.FailedFunc != nil {
+	switch {
+	case tb.FailedFunc != nil:
 		return tb.FailedFunc()
+	case tb.TB != nil:
+		return tb.TB.Failed()
+	default:
+		return tb.record.Failed
 	}
-	return tb.record.Failed
 }
 
 func (tb *TB) Fatal(args ...any) {
 	tb.record.Failed = true
 	tb.record.Goexit = true
-	if tb.FatalFunc != nil {
+	switch {
+	case tb.FatalFunc != nil:
 		tb.FatalFunc(args...)
+		runtime.Goexit()
+	case tb.TB != nil:
+		tb.TB.Fatal(args...)
+	default:
+		runtime.Goexit()
 	}
-	runtime.Goexit()
 }
 
 func (tb *TB) Fatalf(format string, args ...any) {
 	tb.record.Failed = true
 	tb.record.Goexit = true
-	if tb.FatalfFunc != nil {
+
+	switch {
+	case tb.FatalfFunc != nil:
 		tb.FatalfFunc(format, args...)
+		runtime.Goexit()
+	case tb.TB != nil:
+		tb.TB.Fatalf(format, args...)
+	default:
+		runtime.Goexit()
 	}
-	runtime.Goexit()
 }
 
 func (tb *TB) Helper() {
-	if tb.HelperFunc != nil {
+	switch {
+	case tb.HelperFunc != nil:
 		tb.HelperFunc()
+	case tb.TB != nil:
+		tb.TB.Helper()
 	}
 }
 
 func (tb *TB) Log(args ...any) {
-	if tb.LogFunc != nil {
+	switch {
+	case tb.LogFunc != nil:
 		tb.LogFunc(args...)
+	case tb.TB != nil:
+		tb.TB.Log(args...)
 	}
 }
 
 func (tb *TB) Logf(format string, args ...any) {
-	if tb.LogfFunc != nil {
+	switch {
+	case tb.LogfFunc != nil:
 		tb.LogfFunc(format, args...)
+	case tb.TB != nil:
+		tb.TB.Logf(format, args...)
 	}
 }
 
 func (tb *TB) Name() string {
-	if tb.NameFunc != nil {
+	switch {
+	case tb.NameFunc != nil:
 		return tb.NameFunc()
+	case tb.TB != nil:
+		return tb.TB.Name()
+	default:
+		return ""
 	}
-	return ""
 }
 
 func (tb *TB) Setenv(key, value string) {
-	if tb.SetenvFunc != nil {
+	switch {
+	case tb.SetenvFunc != nil:
 		tb.SetenvFunc(key, value)
+	case tb.TB != nil:
+		tb.TB.Setenv(key, value)
 	}
 }
 
 func (tb *TB) Skip(args ...any) {
 	tb.record.Skipped = true
-	if tb.SkipFunc != nil {
+	switch {
+	case tb.SkipFunc != nil:
 		tb.SkipFunc(args...)
+	case tb.TB != nil:
+		tb.TB.Skip(args...)
 	}
 }
 
 func (tb *TB) SkipNow() {
 	tb.record.Skipped = true
 	tb.record.Goexit = true
-	if tb.SkipNowFunc != nil {
+	switch {
+	case tb.SkipNowFunc != nil:
 		tb.SkipNowFunc()
+		runtime.Goexit()
+	case tb.TB != nil:
+		tb.TB.SkipNow()
+	default:
+		runtime.Goexit()
 	}
-	runtime.Goexit()
 }
 
 func (tb *TB) Skipf(format string, args ...any) {
 	tb.record.Skipped = true
-	if tb.SkipfFunc != nil {
+	switch {
+	case tb.SkipfFunc != nil:
 		tb.SkipfFunc(format, args...)
+	case tb.TB != nil:
+		tb.TB.Skipf(format, args...)
 	}
 }
 
 func (tb *TB) Skipped() bool {
-	if tb.SkippedFunc != nil {
+	switch {
+	case tb.SkippedFunc != nil:
 		return tb.SkippedFunc()
+	case tb.TB != nil:
+		return tb.TB.Skipped()
+	default:
+		return tb.record.Skipped
 	}
-	return tb.record.Skipped
 }
 
 func (tb *TB) TempDir() string {
-	if tb.TempDirFunc != nil {
+	switch {
+	case tb.TempDirFunc != nil:
 		return tb.TempDirFunc()
+	case tb.TB != nil:
+		return tb.TB.TempDir()
+	default:
+		return ""
 	}
-	return ""
 }

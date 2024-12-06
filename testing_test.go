@@ -59,6 +59,60 @@ func TestTB_Fields(t *testing.T) {
 	}
 }
 
+func TestTB_DefaultMethod(t *testing.T) {
+	t.Parallel()
+
+	typ := reflect.TypeFor[gotestingmock.TB]()
+	for i := range typ.NumField() {
+		ft := typ.Field(i)
+		if !strings.HasSuffix(ft.Name, "Func") &&
+			ft.Type.Kind() != reflect.Func {
+			continue
+		}
+
+		t.Run(ft.Name, func(t *testing.T) {
+			t.Parallel()
+
+			method := strings.TrimSuffix(ft.Name, "Func")
+
+			var call bool
+			rec := gotestingmock.Run(func(parent *gotestingmock.TB) {
+				tb := &gotestingmock.TB{TB: parent}
+
+				pv := reflect.ValueOf(parent)
+				pfv := pv.Elem().Field(i)
+
+				/*
+					parent.XxxFunc = func() {
+						call = true
+					}
+					parent.Xxx()
+				*/
+
+				pfv.Set(reflect.MakeFunc(ft.Type, func([]reflect.Value) []reflect.Value {
+					call = true
+					ret := make([]reflect.Value, pfv.Type().NumOut())
+					for i := range pfv.Type().NumOut() {
+						ret[i] = reflect.New(pfv.Type().Out(i)).Elem()
+					}
+					return ret
+				}))
+
+				v := reflect.ValueOf(tb)
+				callWithZeros(v.MethodByName(method))
+			})
+
+			if rec.PanicValue != nil {
+				t.Fatal("unexpected panic:", rec.PanicValue)
+			}
+
+			if !call {
+				t.Errorf("gotestingmock.TB.TB.%s did not call with %s", ft.Name, method)
+			}
+		})
+	}
+}
+
 func TestRecord(t *testing.T) {
 	t.Parallel()
 

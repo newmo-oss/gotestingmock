@@ -107,7 +107,7 @@ func TestTB_DefaultMethod(t *testing.T) {
 			}
 
 			if !call {
-				t.Errorf("gotestingmock.TB.TB.%s did not call with %s", ft.Name, method)
+				t.Errorf("(*gotestingmock.TB).%[1]s did not call with (testing.TB).%[1]s", method)
 			}
 		})
 	}

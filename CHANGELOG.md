@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.3](https://github.com/newmo-oss/gotestingmock/compare/v0.1.2...v0.1.3) - 2025-05-02
+- Add dependabot by @tenntenn in https://github.com/newmo-oss/gotestingmock/pull/7
+
 ## [v0.1.2](https://github.com/newmo-oss/gotestingmock/compare/v0.1.1...v0.1.2) - 2025-03-07
 - Update go version and dependencies by @tenntenn in https://github.com/newmo-oss/gotestingmock/pull/5
 

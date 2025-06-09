@@ -1,3 +1,3 @@
 module github.com/newmo-oss/gotestingmock
 
-go 1.23.8
+go 1.23.10

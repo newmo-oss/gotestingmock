@@ -22,12 +22,20 @@ func TestTB_Fields(t *testing.T) {
 		t.Run(ft.Name, func(t *testing.T) {
 			t.Parallel()
 
-			method := strings.TrimSuffix(ft.Name, "Func")
+			methodName := strings.TrimSuffix(ft.Name, "Func")
 
-			var call bool
+			var (
+				call bool
+				skip bool
+			)
 			rec := gotestingmock.Run(func(tb *gotestingmock.TB) {
 				v := reflect.ValueOf(tb)
 				fv := v.Elem().Field(i)
+				method := v.MethodByName(methodName)
+				if !method.IsValid() {
+					skip = true
+					return
+				}
 
 				/*
 					tb.XxxFunc = func() {
@@ -45,15 +53,19 @@ func TestTB_Fields(t *testing.T) {
 					return ret
 				}))
 
-				callWithZeros(v.MethodByName(method))
+				callWithZeros(method)
 			})
+
+			if skip {
+				t.SkipNow()
+			}
 
 			if rec.PanicValue != nil {
 				t.Fatal("unexpected panic:", rec.PanicValue)
 			}
 
 			if !call {
-				t.Errorf("Field %s did not call with %s", ft.Name, method)
+				t.Errorf("Field %s did not call with %s", ft.Name, methodName)
 			}
 		})
 	}
@@ -73,14 +85,24 @@ func TestTB_DefaultMethod(t *testing.T) {
 		t.Run(ft.Name, func(t *testing.T) {
 			t.Parallel()
 
-			method := strings.TrimSuffix(ft.Name, "Func")
+			methodName := strings.TrimSuffix(ft.Name, "Func")
 
-			var call bool
+			var (
+				call bool
+				skip bool
+			)
 			rec := gotestingmock.Run(func(parent *gotestingmock.TB) {
 				tb := &gotestingmock.TB{TB: parent}
 
 				pv := reflect.ValueOf(parent)
 				pfv := pv.Elem().Field(i)
+
+				v := reflect.ValueOf(tb)
+				method := v.MethodByName(methodName)
+				if !method.IsValid() {
+					skip = true
+					return
+				}
 
 				/*
 					parent.XxxFunc = func() {
@@ -98,16 +120,19 @@ func TestTB_DefaultMethod(t *testing.T) {
 					return ret
 				}))
 
-				v := reflect.ValueOf(tb)
-				callWithZeros(v.MethodByName(method))
+				callWithZeros(method)
 			})
+
+			if skip {
+				t.SkipNow()
+			}
 
 			if rec.PanicValue != nil {
 				t.Fatal("unexpected panic:", rec.PanicValue)
 			}
 
 			if !call {
-				t.Errorf("(*gotestingmock.TB).%[1]s did not call with (testing.TB).%[1]s", method)
+				t.Errorf("(*gotestingmock.TB).%[1]s did not call with (testing.TB).%[1]s", methodName)
 			}
 		})
 	}

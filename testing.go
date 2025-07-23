@@ -32,7 +32,7 @@ type TB struct {
 	SkippedFunc func() bool
 	TempDirFunc func() string
 
-	testing.TB // for default behavior andd private method
+	testing.TB // for default behavior and private method
 }
 
 // Record records the result of [Run].

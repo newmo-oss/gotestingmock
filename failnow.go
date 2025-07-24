@@ -120,5 +120,5 @@ func goroutineID() string {
 			return string(buf[10:i])
 		}
 	}
-	return ""
+	panic("cannot parse goroutine id from runtime.Stack")
 }

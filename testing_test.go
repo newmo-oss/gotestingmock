@@ -32,6 +32,9 @@ func TestTB_Fields(t *testing.T) {
 				v := reflect.ValueOf(tb)
 				fv := v.Elem().Field(i)
 				method := v.MethodByName(methodName)
+
+				// When TB has XxxFunc field but *TB does not have the method Xxx,
+				// the reflect package cannot get and call the method. Thus it should be skip.
 				if !method.IsValid() {
 					skip = true
 					return
@@ -99,6 +102,9 @@ func TestTB_DefaultMethod(t *testing.T) {
 
 				v := reflect.ValueOf(tb)
 				method := v.MethodByName(methodName)
+
+				// When TB has XxxFunc field but *TB does not have the method Xxx,
+				// the reflect package cannot get and call the method. Thus it should be skip.
 				if !method.IsValid() {
 					skip = true
 					return

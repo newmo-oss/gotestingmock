@@ -44,14 +44,16 @@ func TestStrictGoexit(t *testing.T) {
 
 			if recovered == nil {
 				t.Error("expected panic did not occur")
-			} else {
-				err, ok := recovered.(*gotestingmock.InvalidFailNowError)
-				if !ok {
-					t.Error("unexpected panic:", recovered)
-				} else {
-					t.Log("expected panic:", err)
-				}
+				return
 			}
+
+			err, ok := recovered.(*gotestingmock.InvalidFailNowError)
+			if !ok {
+				t.Error("unexpected panic:", recovered)
+				return
+			}
+
+			t.Log("expected panic:", err)
 		})
 	}
 

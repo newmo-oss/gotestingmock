@@ -36,7 +36,7 @@ type TB struct {
 	ContextFunc func() context.Context // for Go1.24
 	OutputFunc  func() io.Writer       // for Go1.25
 
-	testing.TB // for default behavior andd private method
+	testing.TB // for default behavior and private method
 }
 
 // Record records the result of [Run].

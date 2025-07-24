@@ -4,6 +4,8 @@ gotestingmock mocking utilities for unit test in Go.
 
 ## Usage
 
+### Running test functions on isolated goroutine with gotestingmock.Run
+
 ```go
 func Test(t *testing.T) {
 	t.Parallel()
@@ -23,6 +25,37 @@ func Test(t *testing.T) {
 	// Check that the test helper has panicked.
 	if got.PanicValue != nil {
 		t.Error("unexpected panic:", got.PanicValue)
+	}
+}
+```
+
+### Detecting incorrect FailNow usage in goroutines with gotestingmock.StrictGoexit
+
+```go
+func TestWithHTTPServer(t *testing.T) {
+	tb := gotestingmock.StrictGoexit(t)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// This will panic because it's called from the handler's goroutine
+		// tb.Fatal("unexpected error")
+
+		// Instead, use proper error handling:
+		if err := someOperation(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer server.Close()
+
+	resp, err := http.Get(server.URL)
+	if err != nil {
+		tb.Fatal(err)  // This is safe - called from test goroutine
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		tb.Fatalf("expected status 200, got %d", resp.StatusCode)
 	}
 }
 ```

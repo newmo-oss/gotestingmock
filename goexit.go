@@ -32,14 +32,14 @@ func (err *InvalidFailNowError) Error() string {
 	return fmt.Sprintf("must not call %s on another goroutine with test %s in %s:%d", method, err.TestName, err.File, err.Line)
 }
 
-// StrictFailNow wraps testing.TB and panics if FailNow or related methods
+// StrictGoexit wraps testing.TB and panics if FailNow or related methods
 // are called from a different goroutine than the test goroutine.
 // This helps detect incorrect usage of t.FailNow in concurrent tests.
 //
 // Example:
 //
 //	func Test(t *testing.T) {
-//		tb := gotestingmock.StrictFailNow(t)
+//		tb := gotestingmock.StrictGoexit(t)
 //
 //		s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 //			if r.Method != http.MethodPost {
@@ -55,7 +55,7 @@ func (err *InvalidFailNowError) Error() string {
 //		}
 //		defer resp.Body.Close()
 //	}
-func StrictFailNow(tb testing.TB) *TB {
+func StrictGoexit(tb testing.TB) *TB {
 	testGID := goroutineID()
 
 	var (

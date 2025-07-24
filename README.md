@@ -29,11 +29,11 @@ func Test(t *testing.T) {
 }
 ```
 
-### Detecting incorrect FailNow usage in goroutines with gotestingmock.StrictFailNow
+### Detecting incorrect FailNow usage in goroutines with gotestingmock.StrictGoexit
 
 ```go
 func TestWithHTTPServer(t *testing.T) {
-	tb := gotestingmock.StrictFailNow(t)
+	tb := gotestingmock.StrictGoexit(t)
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// This will panic because it's called from the handler's goroutine

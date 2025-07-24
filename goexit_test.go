@@ -8,7 +8,7 @@ import (
 	"github.com/newmo-oss/gotestingmock"
 )
 
-func TestStrictFailNow(t *testing.T) {
+func TestStrictGoexit(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
@@ -23,7 +23,7 @@ func TestStrictFailNow(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			tb := gotestingmock.StrictFailNow(t)
+			tb := gotestingmock.StrictGoexit(t)
 
 			var recovered any
 			s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +59,7 @@ func TestStrictFailNow(t *testing.T) {
 		t.Parallel()
 
 		record := gotestingmock.Run(func(tb *gotestingmock.TB) {
-			tb = gotestingmock.StrictFailNow(tb)
+			tb = gotestingmock.StrictGoexit(tb)
 			tb.Fatal("error")
 		})
 

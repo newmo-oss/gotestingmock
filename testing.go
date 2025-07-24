@@ -1,6 +1,8 @@
 package gotestingmock
 
 import (
+	"context"
+	"io"
 	"runtime"
 	"sync"
 	"testing"
@@ -31,6 +33,8 @@ type TB struct {
 	SkipfFunc   func(format string, args ...any)
 	SkippedFunc func() bool
 	TempDirFunc func() string
+	ContextFunc func() context.Context // for Go1.24
+	OutputFunc  func() io.Writer       // for Go1.25
 
 	testing.TB // for default behavior andd private method
 }
